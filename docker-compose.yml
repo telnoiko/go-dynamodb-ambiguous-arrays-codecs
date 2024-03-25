@@ -1,25 +1,48 @@
 # https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/DynamoDBLocal.DownloadingAndRunning.html
 version: '3.8'
 services:
+  test-app:
+    container_name: test-app
+    image: back/test-app:dev
+    build:
+      dockerfile: Dockerfile
+    ports:
+      - "1323:1323"
+    environment:
+      DYANMODB_HOST: "http://dynamodb-local:8000"
+    depends_on:
+      dynamo-config:
+        condition: service_completed_successfully
+
   dynamodb-local:
-    command: "-jar DynamoDBLocal.jar -sharedDb -dbPath ./data"
+    command: "-jar DynamoDBLocal.jar -sharedDb -inMemory"
     image: "amazon/dynamodb-local:latest"
     container_name: dynamodb-local
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          'if [ "$(curl -s -o /dev/null -I -w ''%{http_code}'' http://localhost:8000)" == "400" ]; then exit 0; else exit 1; fi',
+        ]
+      interval: 1s
+      timeout: 3s
+      retries: 10
+      start_period: 5s
     ports:
       - "8000:8000"
-    volumes:
-      - "./docker/dynamodb:/home/dynamodblocal/data"
     working_dir: /home/dynamodblocal
-  app-node:
-    image: location-of-your-dynamodb-demo-app:latest
-    container_name: app-node
-    ports:
-      - "8080:8080"
+
+  dynamo-config:
     depends_on:
-      - "dynamodb-local"
-    links:
-      - "dynamodb-local"
+      dynamodb-local:
+        condition: service_healthy
+    image: amazon/aws-cli
+    container_name: dynamo-config
     environment:
       AWS_ACCESS_KEY_ID: 'DUMMYIDEXAMPLE'
       AWS_SECRET_ACCESS_KEY: 'DUMMYEXAMPLEKEY'
-      REGION: 'eu-west-1'
+    command: >
+      dynamodb create-table --endpoint-url http://dynamodb-local:8000 --region us-west-2 
+      --table-name UserChoices --attribute-definitions AttributeName=id,AttributeType=S 
+      --key-schema AttributeName=id,KeyType=HASH 
+      --provisioned-throughput ReadCapacityUnits=5,WriteCapacityUnits=5

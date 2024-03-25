@@ -1,0 +1,31 @@
+###
+# @name  Craete choice with a string type
+POST http://localhost:1323/choice
+Content-Type: application/json
+
+{
+    "choice": "grapes"
+}
+
+> {% client.global.set("id", response.body.id); %}
+
+###
+# @name  Craete choice with a string array type
+POST http://localhost:1323/choice
+Content-Type: application/json
+
+{
+    "choice": ["banana", "apples"]
+}
+
+> {% client.global.set("id", response.body.id); %}
+
+###
+# @name  Get choice with a manual type conversion
+GET localhost:1323/choice-manual/{{id}}
+Content-Type: application/json
+
+###
+# @name  Get choice with a manual automatic unmarshalling
+GET localhost:1323/choice-auto/{{id}}
+Content-Type: application/json

@@ -4,3 +4,4 @@
 *.syso
 .idea
 *.DS_Store
+vendor
