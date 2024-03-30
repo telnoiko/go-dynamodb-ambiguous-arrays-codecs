@@ -14,4 +14,4 @@ deps:
 	go mod vendor
 
 run:
-	go run main.go -e 
+	DYANMODB_HOST=http://localhost:8000 go run main.go
