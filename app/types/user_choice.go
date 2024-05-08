@@ -30,27 +30,28 @@ func (a AgnosticArray) MarshalDynamoDBAttributeValue() (types.AttributeValue, er
 }
 
 func (a *AgnosticArray) UnmarshalDynamoDBAttributeValue(av types.AttributeValue) error {
-	arr, ok := av.(*types.AttributeValueMemberL)
-	if !ok {
+	switch av.(type) {
+	case *types.AttributeValueMemberL:
+		arr, _ := av.(*types.AttributeValueMemberL)
+		var strValues []string
+		for _, value := range arr.Value {
+			strValue, ok := value.(*types.AttributeValueMemberS)
+			if !ok {
+				return fmt.Errorf("cannot parse '%v' into string", value)
+			}
+			strValues = append(strValues, strValue.Value)
+		}
+
+		*a = strValues
+	case *types.AttributeValueMemberS:
 		value, ok := av.(*types.AttributeValueMemberS)
 		if !ok {
 			return fmt.Errorf("failed to unmarshal array from value {%v}", av)
 		}
 		*a = AgnosticArray{value.Value}
-
-		return nil
+	default:
+		return fmt.Errorf("unsopported type of unmarshal value {%v}", av)
 	}
-
-	var strValues []string
-	for _, value := range arr.Value {
-		strValue, ok := value.(*types.AttributeValueMemberS)
-		if !ok {
-			return fmt.Errorf("cannot parse '%v' into string", value)
-		}
-		strValues = append(strValues, strValue.Value)
-	}
-
-	*a = strValues
 
 	return nil
 }
