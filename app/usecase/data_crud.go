@@ -35,7 +35,7 @@ func (d *DataCrud) CreateUserChoice(ctx echo.Context) error {
 }
 
 func (d *DataCrud) GetUserChoice(ctx echo.Context) error {
-	ctx.Logger().Info("GetUserChoiceAgnosticArray")
+	ctx.Logger().Info("GetUserChoice")
 	id := ctx.Param("id")
 	uid, err := uuid.Parse(id)
 	if err != nil {
@@ -77,7 +77,7 @@ func (d *DataCrud) GetUserChoiceAgnosticArray(ctx echo.Context) error {
 }
 
 func (d *DataCrud) GetUserChoiceAgnosticType(ctx echo.Context) error {
-	ctx.Logger().Info("GetUserChoiceAgnosticArray")
+	ctx.Logger().Info("GetUserChoiceAgnosticType")
 	id := ctx.Param("id")
 	uid, err := uuid.Parse(id)
 	if err != nil {

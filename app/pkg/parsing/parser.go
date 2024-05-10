@@ -9,15 +9,16 @@ import (
 // into a slice of strings.
 func ConvertToArray(field any) []string {
 	array, err := tryConvertIfArray(field)
-	if err != nil {
-		value, err := tryConvertIfString(field)
-		if err != nil {
-			return nil
-		}
+	if err == nil {
+		return array
+	}
+
+	value, err := tryConvertIfString(field)
+	if err == nil {
 		return []string{*value}
 	}
 
-	return array
+	return nil
 }
 
 // tryConvertIfArray tries to cast value to array of strings

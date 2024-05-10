@@ -33,7 +33,9 @@ func (a *AgnosticArray) UnmarshalDynamoDBAttributeValue(av types.AttributeValue)
 func TryParseSliceField(av types.AttributeValue) ([]string, error) {
 	switch av.(type) {
 	case *types.AttributeValueMemberL:
-		strValues, err := readStringSlice(av)
+		value, _ := av.(*types.AttributeValueMemberL)
+
+		strValues, err := readStringSlice(value)
 		if err != nil {
 			return nil, err
 		}
@@ -48,14 +50,9 @@ func TryParseSliceField(av types.AttributeValue) ([]string, error) {
 	}
 }
 
-func readStringSlice(av types.AttributeValue) ([]string, error) {
-	arr, ok := av.(*types.AttributeValueMemberL)
-	if !ok {
-		return nil, fmt.Errorf("failed to unmarshal array from value {%v}, type %T", av, av)
-	}
-
+func readStringSlice(av *types.AttributeValueMemberL) ([]string, error) {
 	var strValues []string
-	for _, value := range arr.Value {
+	for _, value := range av.Value {
 		strValue, ok := value.(*types.AttributeValueMemberS)
 		if !ok {
 			return nil, fmt.Errorf("cannot parse '%v' into string", value)
