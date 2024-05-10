@@ -7,7 +7,7 @@ Content-Type: application/json
     "choice": "grapes"
 }
 
-> {% client.global.set("id", response.body.id); %}
+> {% client.global.set("id_string", response.body.id); %}
 
 ###
 # @name  Craete choice with a string array type
@@ -18,14 +18,32 @@ Content-Type: application/json
     "choice": ["banana", "apples"]
 }
 
-> {% client.global.set("id", response.body.id); %}
+> {% client.global.set("id_array", response.body.id); %}
 
 ###
 # @name  Get choice with a manual type conversion
-GET localhost:1323/choice-manual/{{id}}
+GET localhost:1323/choice-manual/{{id_string}}
 Content-Type: application/json
 
 ###
-# @name  Get choice with a manual automatic unmarshalling
-GET localhost:1323/choice-auto/{{id}}
+# @name  Get choice with a manual type conversion
+GET localhost:1323/choice-manual/{{id_array}}
+Content-Type: application/json
+
+###
+# @name  Get choice with a manual automatic unmarshalling of array
+GET localhost:1323/choice-auto-array/{{id_string}}
+Content-Type: application/json
+###
+# @name  Get choice with a manual automatic unmarshalling of array
+GET localhost:1323/choice-auto-array/{{id_array}}
+Content-Type: application/json
+
+###
+# @name  Get choice with a manual automatic unmarshalling of type
+GET localhost:1323/choice-auto-type/{{id_string}}
+Content-Type: application/json
+###
+# @name  Get choice with a manual automatic unmarshalling of type
+GET localhost:1323/choice-auto-type/{{id_array}}
 Content-Type: application/json

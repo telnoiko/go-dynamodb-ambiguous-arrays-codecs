@@ -35,7 +35,7 @@ func (d *DataCrud) CreateUserChoice(ctx echo.Context) error {
 }
 
 func (d *DataCrud) GetUserChoice(ctx echo.Context) error {
-	ctx.Logger().Info("GetUserChoice")
+	ctx.Logger().Info("GetUserChoiceAgnosticArray")
 	id := ctx.Param("id")
 	uid, err := uuid.Parse(id)
 	if err != nil {
@@ -60,15 +60,31 @@ func parseAbstractChoice(rawChoice *types.UserChoiceRequest) types.UserChoiceRes
 	return choice
 }
 
-func (d *DataCrud) GetUserChoiceAuto(ctx echo.Context) error {
-	ctx.Logger().Info("GetUserChoice")
+func (d *DataCrud) GetUserChoiceAgnosticArray(ctx echo.Context) error {
+	ctx.Logger().Info("GetUserChoiceAgnosticArray")
 	id := ctx.Param("id")
 	uid, err := uuid.Parse(id)
 	if err != nil {
 		return ctx.String(http.StatusBadRequest, fmt.Sprintf("couldn't parse id: %v", err))
 	}
 
-	userChoice, err := d.repo.GetUserChoice(uid)
+	userChoice, err := d.repo.GetUserChoiceAgnosticArray(uid)
+	if err != nil {
+		return ctx.String(http.StatusInternalServerError, fmt.Sprintf("couldn't get item: %v", err))
+	}
+
+	return ctx.JSON(http.StatusOK, userChoice)
+}
+
+func (d *DataCrud) GetUserChoiceAgnosticType(ctx echo.Context) error {
+	ctx.Logger().Info("GetUserChoiceAgnosticArray")
+	id := ctx.Param("id")
+	uid, err := uuid.Parse(id)
+	if err != nil {
+		return ctx.String(http.StatusBadRequest, fmt.Sprintf("couldn't parse id: %v", err))
+	}
+
+	userChoice, err := d.repo.GetUserChoiceAgnosticType(uid)
 	if err != nil {
 		return ctx.String(http.StatusInternalServerError, fmt.Sprintf("couldn't get item: %v", err))
 	}

@@ -20,7 +20,8 @@ func main() {
 
 	e.POST("/choice", crud.CreateUserChoice)
 	e.GET("/choice-manual/:id", crud.GetUserChoice)
-	e.GET("/choice-auto/:id", crud.GetUserChoiceAuto)
+	e.GET("/choice-auto-array/:id", crud.GetUserChoiceAgnosticArray)
+	e.GET("/choice-auto-type/:id", crud.GetUserChoiceAgnosticType)
 
 	e.Logger.Fatal(e.Start(":1323"))
 }
