@@ -3,11 +3,11 @@ package agnostic_type
 import (
 	"fmt"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
-	"go-dynamodb-ambiguous-arrays-codecs/app/types/agnostic_array"
+	"go-dynamodb-ambiguous-arrays-codecs/app/pkg/unmarshaling"
 )
 
-// UserChoiceAgnosticType is a dto for response body with automatic type conversion
-// for the whole object, removing custom types from the object itself
+// UserChoiceAgnosticType is a dto with automatic type conversion
+// for the whole object using type casting
 type UserChoiceAgnosticType struct {
 	ID     string   `json:"id" dynamodbav:"id"`
 	Choice []string `json:"choice" dynamodbav:"choice"`
@@ -30,7 +30,7 @@ func (a *UserChoiceAgnosticType) UnmarshalDynamoDBAttributeValue(av types.Attrib
 
 			userChoice.ID = parsed.Value
 		case "choice":
-			parsed, err := agnostic_array.TryParseSliceField(value)
+			parsed, err := unmarshaling.TryParseSliceField(value)
 			if err != nil {
 				return err
 			}

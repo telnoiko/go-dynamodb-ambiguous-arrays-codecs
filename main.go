@@ -22,6 +22,7 @@ func main() {
 	e.GET("/choice-manual/:id", crud.GetUserChoice)
 	e.GET("/choice-auto-array/:id", crud.GetUserChoiceAgnosticArray)
 	e.GET("/choice-auto-type/:id", crud.GetUserChoiceAgnosticType)
+	e.GET("/choice-auto-reflection/:id", crud.GetUserChoiceAgnosticTypeReflection)
 
 	e.Logger.Fatal(e.Start(":1323"))
 }

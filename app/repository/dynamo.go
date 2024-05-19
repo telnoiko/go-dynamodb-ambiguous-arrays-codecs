@@ -12,6 +12,7 @@ import (
 	"go-dynamodb-ambiguous-arrays-codecs/app/types"
 	"go-dynamodb-ambiguous-arrays-codecs/app/types/agnostic_array"
 	"go-dynamodb-ambiguous-arrays-codecs/app/types/agnostic_type"
+	"go-dynamodb-ambiguous-arrays-codecs/app/types/reflection"
 )
 
 type DynamoRepository struct {
@@ -101,6 +102,20 @@ func (d *DynamoRepository) GetUserChoiceAgnosticType(id uuid.UUID) (*agnostic_ty
 	}
 
 	var userChoiceCustom agnostic_type.UserChoiceAgnosticType
+	err = attributevalue.UnmarshalMap(item.Item, &userChoiceCustom)
+
+	return &userChoiceCustom, err
+}
+
+func (d *DynamoRepository) GetUserChoiceAgnosticTypeReflection(id uuid.UUID) (*reflection.UserChoiceAgnosticTypeReflection, error) {
+	request := mapToDynamoRequest(id)
+
+	item, err := d.dynamodbClient.GetItem(context.Background(), &request)
+	if err != nil {
+		return nil, err
+	}
+
+	var userChoiceCustom reflection.UserChoiceAgnosticTypeReflection
 	err = attributevalue.UnmarshalMap(item.Item, &userChoiceCustom)
 
 	return &userChoiceCustom, err

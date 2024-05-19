@@ -18,6 +18,7 @@ func NewDataCrud(repo *repository.DynamoRepository) *DataCrud {
 	return &DataCrud{repo: *repo}
 }
 
+// CreateUserChoice accepts any type of 'choice' field  and saves it to the database
 func (d *DataCrud) CreateUserChoice(ctx echo.Context) error {
 	ctx.Logger().Info("CreateUserChoice")
 	var choice types.UserChoiceRequest
@@ -34,6 +35,7 @@ func (d *DataCrud) CreateUserChoice(ctx echo.Context) error {
 	return ctx.JSON(http.StatusOK, types.UserChoiceRequest{ID: id})
 }
 
+// GetUserChoice parses the 'choice' field with manual parser
 func (d *DataCrud) GetUserChoice(ctx echo.Context) error {
 	ctx.Logger().Info("GetUserChoice")
 	id := ctx.Param("id")
@@ -60,6 +62,8 @@ func parseAbstractChoice(rawChoice *types.UserChoiceRequest) types.UserChoiceRes
 	return choice
 }
 
+// GetUserChoiceAgnosticArray parses the 'choice' field with 'AgnosticArray' type
+// that implements inbuilt dynamodb 'Unmarshaler' interface
 func (d *DataCrud) GetUserChoiceAgnosticArray(ctx echo.Context) error {
 	ctx.Logger().Info("GetUserChoiceAgnosticArray")
 	id := ctx.Param("id")
@@ -76,6 +80,8 @@ func (d *DataCrud) GetUserChoiceAgnosticArray(ctx echo.Context) error {
 	return ctx.JSON(http.StatusOK, userChoice)
 }
 
+// GetUserChoiceAgnosticType parses the 'choice' field inside a structure 'UserChoiceAgnosticType'
+// that implements inbuilt dynamodb 'Unmarshaler' interface
 func (d *DataCrud) GetUserChoiceAgnosticType(ctx echo.Context) error {
 	ctx.Logger().Info("GetUserChoiceAgnosticType")
 	id := ctx.Param("id")
@@ -85,6 +91,24 @@ func (d *DataCrud) GetUserChoiceAgnosticType(ctx echo.Context) error {
 	}
 
 	userChoice, err := d.repo.GetUserChoiceAgnosticType(uid)
+	if err != nil {
+		return ctx.String(http.StatusInternalServerError, fmt.Sprintf("couldn't get item: %v", err))
+	}
+
+	return ctx.JSON(http.StatusOK, userChoice)
+}
+
+// GetUserChoiceAgnosticTypeReflection parses the 'choice' field inside a structure 'UserChoiceAgnosticTypeReflection'
+// that implements inbuilt dynamodb 'Unmarshaler' interface using reflection
+func (d *DataCrud) GetUserChoiceAgnosticTypeReflection(ctx echo.Context) error {
+	ctx.Logger().Info("GetUserChoiceAgnosticType")
+	id := ctx.Param("id")
+	uid, err := uuid.Parse(id)
+	if err != nil {
+		return ctx.String(http.StatusBadRequest, fmt.Sprintf("couldn't parse id: %v", err))
+	}
+
+	userChoice, err := d.repo.GetUserChoiceAgnosticTypeReflection(uid)
 	if err != nil {
 		return ctx.String(http.StatusInternalServerError, fmt.Sprintf("couldn't get item: %v", err))
 	}

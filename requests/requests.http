@@ -1,49 +1,132 @@
 ###
-# @name  Craete choice with a string type
+# @name Craete choice with a string type
 POST http://localhost:1323/choice
 Content-Type: application/json
 
 {
-    "choice": "grapes"
+  "choice": "grapes"
 }
 
-> {% client.global.set("id_string", response.body.id); %}
+> {%
+    client.global.set("id_string", response.body.id);
+%}
 
 ###
-# @name  Craete choice with a string array type
+# @name Craete choice with a string array type
 POST http://localhost:1323/choice
 Content-Type: application/json
 
 {
-    "choice": ["banana", "apples"]
+  "choice": [
+    "banana",
+    "apples"
+  ]
 }
 
-> {% client.global.set("id_array", response.body.id); %}
+> {%
+    client.global.set("id_array", response.body.id);
+%}
 
 ###
-# @name  Get choice with a manual type conversion
+# @name Test string choice with manual type conversion
 GET localhost:1323/choice-manual/{{id_string}}
 Content-Type: application/json
 
+> {%
+    import {testyUnmarshaledValues} from "./test-functions";
+
+    client.test("String value parsed correctly", () => {
+        client.assert(testyUnmarshaledValues(response.body, ["grapes"]));
+    });
+%}
+
 ###
-# @name  Get choice with a manual type conversion
+# @name Test array choice with a manual type conversion
 GET localhost:1323/choice-manual/{{id_array}}
 Content-Type: application/json
 
+> {%
+    import {testyUnmarshaledValues} from "./test-functions";
+
+    client.test("Array value parsed correctly", function () {
+        client.assert(testyUnmarshaledValues(response.body, ["banana", "apples"]));
+    });
+%}
+
 ###
-# @name  Get choice with a manual automatic unmarshalling of array
+# @name Test string choice with automatic unmarshalling of array
 GET localhost:1323/choice-auto-array/{{id_string}}
 Content-Type: application/json
+
+> {%
+    import {testyUnmarshaledValues} from "./test-functions";
+
+    client.test("String value parsed correctly", () => {
+        client.assert(testyUnmarshaledValues(response.body, ["grapes"]));
+    });
+%}
+
 ###
-# @name  Get choice with a manual automatic unmarshalling of array
+# @name Test array choice with automatic unmarshalling of array
 GET localhost:1323/choice-auto-array/{{id_array}}
 Content-Type: application/json
 
+> {%
+    import {testyUnmarshaledValues} from "./test-functions";
+
+    client.test("Array value parsed correctly", function () {
+        client.assert(testyUnmarshaledValues(response.body, ["banana", "apples"]));
+    });
+%}
+
 ###
-# @name  Get choice with a manual automatic unmarshalling of type
+# @name Test string choice with automatic unmarshalling of type
 GET localhost:1323/choice-auto-type/{{id_string}}
 Content-Type: application/json
+
+> {%
+    import {testyUnmarshaledValues} from "./test-functions";
+
+    client.test("String value parsed correctly", () => {
+        client.assert(testyUnmarshaledValues(response.body, ["grapes"]));
+    });
+%}
+
 ###
-# @name  Get choice with a manual automatic unmarshalling of type
+# @name Test array choice with automatic unmarshalling of type
 GET localhost:1323/choice-auto-type/{{id_array}}
 Content-Type: application/json
+
+> {%
+    import {testyUnmarshaledValues} from "./test-functions";
+
+    client.test("Array value parsed correctly", function () {
+        client.assert(testyUnmarshaledValues(response.body, ["banana", "apples"]));
+    });
+%}
+
+###
+# @name Test string choice with automatic unmarshalling of type using reflection
+GET localhost:1323/choice-auto-reflection/{{id_string}}
+Content-Type: application/json
+
+> {%
+    import {testyUnmarshaledValues} from "./test-functions";
+
+    client.test("String value parsed correctly", () => {
+        client.assert(testyUnmarshaledValues(response.body, ["grapes"]));
+    });
+%}
+
+###
+# @name Test array choice with automatic unmarshalling of typee using reflection
+GET localhost:1323/choice-auto-reflection/{{id_array}}
+Content-Type: application/json
+
+> {%
+    import {testyUnmarshaledValues} from "./test-functions";
+
+    client.test("Array value parsed correctly", function () {
+        client.assert(testyUnmarshaledValues(response.body, ["banana", "apples"]));
+    });
+%}
