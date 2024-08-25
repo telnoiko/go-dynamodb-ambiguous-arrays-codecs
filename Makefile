@@ -3,7 +3,7 @@ up:
 	docker compose up -d --force-recreate
 
 up-dynamo:
-	docker compose up -d --force-recreate dynamo-config
+	docker compose up -d --force-recreate dynamodb-local dynamo-config
 
 down:
 	docker compose down --remove-orphans --rmi local

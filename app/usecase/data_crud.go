@@ -4,114 +4,130 @@ import (
 	"fmt"
 	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
-	"go-dynamodb-ambiguous-arrays-codecs/app/pkg/parsing"
-	"go-dynamodb-ambiguous-arrays-codecs/app/repository"
 	"go-dynamodb-ambiguous-arrays-codecs/app/types"
+	"go-dynamodb-ambiguous-arrays-codecs/app/types/dynamo_agnostic_array"
+	"go-dynamodb-ambiguous-arrays-codecs/app/types/dynamo_agnostic_type"
+	"go-dynamodb-ambiguous-arrays-codecs/app/types/dynamo_reflection"
+	"go-dynamodb-ambiguous-arrays-codecs/app/types/manual"
 	"net/http"
 )
 
-type DataCrud struct {
-	repo repository.DynamoRepository
+type Usecase struct {
+	repo userDataRepository
 }
 
-func NewDataCrud(repo *repository.DynamoRepository) *DataCrud {
-	return &DataCrud{repo: *repo}
+type userDataRepository interface {
+	SaveUserDataAbstract(UserDataAbstract *types.UserDataRequest) (id string, err error)
+	GetUserDataAbstract(id uuid.UUID) (*types.UserDataRequest, error)
+	GetUserDataAgnosticArray(id uuid.UUID) (*dynamo_agnostic_array.UserDataAgnosticArray, error)
+	GetUserDataAgnosticType(id uuid.UUID) (*dynamo_agnostic_type.UserDataAgnosticType, error)
+	GetUserDataAgnosticTypeReflection(id uuid.UUID) (*dynamo_reflection.UserDataAgnosticTypeReflection, error)
 }
 
-// CreateUserChoice accepts any type of 'choice' field  and saves it to the database
-func (d *DataCrud) CreateUserChoice(ctx echo.Context) error {
-	ctx.Logger().Info("CreateUserChoice")
-	var choice types.UserChoiceRequest
-	err := ctx.Bind(&choice)
+func New(repo userDataRepository) *Usecase {
+	return &Usecase{repo: repo}
+}
+
+// CreateUserData accepts any type of 'favorite_food' field  and saves it to the database
+func (d *Usecase) CreateUserData(ctx echo.Context) error {
+	ctx.Logger().Info("CreateUserData")
+	var request types.UserDataRequest
+	err := ctx.Bind(&request)
 	if err != nil {
 		return ctx.String(http.StatusBadRequest, fmt.Sprintf("couldn't parse body: %v", err))
 	}
 
-	id, err := d.repo.SaveUserChoiceAbstract(&choice)
+	id, err := d.repo.SaveUserDataAbstract(&request)
 	if err != nil {
 		return ctx.String(http.StatusInternalServerError, fmt.Sprintf("couldn't save item: %v", err))
 	}
 
-	return ctx.JSON(http.StatusOK, types.UserChoiceRequest{ID: id})
+	return ctx.JSON(http.StatusOK, types.UserDataRequest{ID: id})
 }
 
-// GetUserChoice parses the 'choice' field with manual parser
-func (d *DataCrud) GetUserChoice(ctx echo.Context) error {
-	ctx.Logger().Info("GetUserChoice")
+// GetUserData parses the 'favorite_food' field with manual parser
+func (d *Usecase) GetUserData(ctx echo.Context) error {
+	ctx.Logger().Info("GetUserData")
 	id := ctx.Param("id")
 	uid, err := uuid.Parse(id)
 	if err != nil {
 		return ctx.String(http.StatusBadRequest, fmt.Sprintf("couldn't parse id: %v", err))
 	}
 
-	rawChoice, err := d.repo.GetUserChoiceAbstract(uid)
+	rawUserData, err := d.repo.GetUserDataAbstract(uid)
 	if err != nil {
 		return ctx.String(http.StatusInternalServerError, fmt.Sprintf("couldn't get item: %v", err))
 	}
 
 	// Convert manually
-	choice := parseAbstractChoice(rawChoice)
+	userData, err := parseAbstractRequest(rawUserData)
+	if err != nil {
+		return ctx.String(http.StatusInternalServerError, fmt.Sprintf("couldn't parse data: %v", err))
+	}
 
-	return ctx.JSON(http.StatusOK, choice)
+	return ctx.JSON(http.StatusOK, userData)
 }
 
-func parseAbstractChoice(rawChoice *types.UserChoiceRequest) types.UserChoiceResponse {
-	choice := types.UserChoiceResponse{}
-	choiceField := parsing.ConvertToArray(rawChoice.Choice)
-	choice.Choice = choiceField
-	return choice
+func parseAbstractRequest(request *types.UserDataRequest) (manual.UserDataTarget, error) {
+	target := manual.UserDataTarget{}
+	parsed, err := manual.ConvertToArray(request.FavoriteFood)
+	if err != nil {
+		return target, err
+	}
+	target.FavoriteFood = parsed
+	return target, nil
 }
 
-// GetUserChoiceAgnosticArray parses the 'choice' field with 'AgnosticArray' type
+// GetUserDataAgnosticArray parses the 'favorite_food' field with 'AgnosticArray' type
 // that implements inbuilt dynamodb 'Unmarshaler' interface
-func (d *DataCrud) GetUserChoiceAgnosticArray(ctx echo.Context) error {
-	ctx.Logger().Info("GetUserChoiceAgnosticArray")
+func (d *Usecase) GetUserDataAgnosticArray(ctx echo.Context) error {
+	ctx.Logger().Info("GetUserDataAgnosticArray")
 	id := ctx.Param("id")
 	uid, err := uuid.Parse(id)
 	if err != nil {
 		return ctx.String(http.StatusBadRequest, fmt.Sprintf("couldn't parse id: %v", err))
 	}
 
-	userChoice, err := d.repo.GetUserChoiceAgnosticArray(uid)
+	UserData, err := d.repo.GetUserDataAgnosticArray(uid)
 	if err != nil {
 		return ctx.String(http.StatusInternalServerError, fmt.Sprintf("couldn't get item: %v", err))
 	}
 
-	return ctx.JSON(http.StatusOK, userChoice)
+	return ctx.JSON(http.StatusOK, UserData)
 }
 
-// GetUserChoiceAgnosticType parses the 'choice' field inside a structure 'UserChoiceAgnosticType'
+// GetUserDataAgnosticType parses the 'favorite_food' field inside a structure 'UserDataAgnosticType'
 // that implements inbuilt dynamodb 'Unmarshaler' interface
-func (d *DataCrud) GetUserChoiceAgnosticType(ctx echo.Context) error {
-	ctx.Logger().Info("GetUserChoiceAgnosticType")
+func (d *Usecase) GetUserDataAgnosticType(ctx echo.Context) error {
+	ctx.Logger().Info("GetUserDataAgnosticType")
 	id := ctx.Param("id")
 	uid, err := uuid.Parse(id)
 	if err != nil {
 		return ctx.String(http.StatusBadRequest, fmt.Sprintf("couldn't parse id: %v", err))
 	}
 
-	userChoice, err := d.repo.GetUserChoiceAgnosticType(uid)
+	UserData, err := d.repo.GetUserDataAgnosticType(uid)
 	if err != nil {
 		return ctx.String(http.StatusInternalServerError, fmt.Sprintf("couldn't get item: %v", err))
 	}
 
-	return ctx.JSON(http.StatusOK, userChoice)
+	return ctx.JSON(http.StatusOK, UserData)
 }
 
-// GetUserChoiceAgnosticTypeReflection parses the 'choice' field inside a structure 'UserChoiceAgnosticTypeReflection'
-// that implements inbuilt dynamodb 'Unmarshaler' interface using reflection
-func (d *DataCrud) GetUserChoiceAgnosticTypeReflection(ctx echo.Context) error {
-	ctx.Logger().Info("GetUserChoiceAgnosticType")
+// GetUserDataAgnosticTypeReflection parses the 'favorite_food' field inside a structure 'UserDataAgnosticTypeReflection'
+// that implements inbuilt dynamodb 'Unmarshaler' interface using dynamo_reflection
+func (d *Usecase) GetUserDataAgnosticTypeReflection(ctx echo.Context) error {
+	ctx.Logger().Info("GetUserDataAgnosticType")
 	id := ctx.Param("id")
 	uid, err := uuid.Parse(id)
 	if err != nil {
 		return ctx.String(http.StatusBadRequest, fmt.Sprintf("couldn't parse id: %v", err))
 	}
 
-	userChoice, err := d.repo.GetUserChoiceAgnosticTypeReflection(uid)
+	UserData, err := d.repo.GetUserDataAgnosticTypeReflection(uid)
 	if err != nil {
 		return ctx.String(http.StatusInternalServerError, fmt.Sprintf("couldn't get item: %v", err))
 	}
 
-	return ctx.JSON(http.StatusOK, userChoice)
+	return ctx.JSON(http.StatusOK, UserData)
 }

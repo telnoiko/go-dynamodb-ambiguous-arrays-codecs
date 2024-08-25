@@ -5,21 +5,14 @@ import (
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/credentials"
-	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
-	typez "github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
-	"github.com/google/uuid"
-	"go-dynamodb-ambiguous-arrays-codecs/app/types"
-	"go-dynamodb-ambiguous-arrays-codecs/app/types/agnostic_array"
-	"go-dynamodb-ambiguous-arrays-codecs/app/types/agnostic_type"
-	"go-dynamodb-ambiguous-arrays-codecs/app/types/reflection"
 )
 
 type DynamoRepository struct {
 	dynamodbClient *dynamodb.Client
 }
 
-const UserChoicesTableName = "UserChoices"
+const UserDataTableName = "UserData"
 
 func NewDynamoRepository(dynamoHost string) *DynamoRepository {
 	dynamodbClient := createLocalClient(dynamoHost)
@@ -45,91 +38,4 @@ func createLocalClient(url string) *dynamodb.Client {
 	}
 
 	return dynamodb.NewFromConfig(cfg)
-}
-
-func (d *DynamoRepository) SaveUserChoiceAbstract(userChoiceAbstract *types.UserChoiceRequest) (id string, err error) {
-	table := UserChoicesTableName
-	userChoiceAbstract.ID = uuid.New().String()
-
-	item, err := attributevalue.MarshalMap(userChoiceAbstract)
-	if err != nil {
-		return "", err
-	}
-
-	request := dynamodb.PutItemInput{
-		TableName: &table,
-		Item:      item,
-	}
-
-	_, err = d.dynamodbClient.PutItem(context.Background(), &request)
-	return userChoiceAbstract.ID, err
-}
-
-func (d *DynamoRepository) GetUserChoiceAbstract(id uuid.UUID) (*types.UserChoiceRequest, error) {
-	request := mapToDynamoRequest(id)
-
-	item, err := d.dynamodbClient.GetItem(context.Background(), &request)
-	if err != nil {
-		return nil, err
-	}
-
-	var userChoiceAbstract types.UserChoiceRequest
-	err = attributevalue.UnmarshalMap(item.Item, &userChoiceAbstract)
-
-	return &userChoiceAbstract, err
-}
-
-func (d *DynamoRepository) GetUserChoiceAgnosticArray(id uuid.UUID) (*agnostic_array.UserChoiceAgnosticArray, error) {
-	request := mapToDynamoRequest(id)
-
-	item, err := d.dynamodbClient.GetItem(context.Background(), &request)
-	if err != nil {
-		return nil, err
-	}
-
-	var userChoiceCustom agnostic_array.UserChoiceAgnosticArray
-	err = attributevalue.UnmarshalMap(item.Item, &userChoiceCustom)
-
-	return &userChoiceCustom, err
-}
-
-func (d *DynamoRepository) GetUserChoiceAgnosticType(id uuid.UUID) (*agnostic_type.UserChoiceAgnosticType, error) {
-	request := mapToDynamoRequest(id)
-
-	item, err := d.dynamodbClient.GetItem(context.Background(), &request)
-	if err != nil {
-		return nil, err
-	}
-
-	var userChoiceCustom agnostic_type.UserChoiceAgnosticType
-	err = attributevalue.UnmarshalMap(item.Item, &userChoiceCustom)
-
-	return &userChoiceCustom, err
-}
-
-func (d *DynamoRepository) GetUserChoiceAgnosticTypeReflection(id uuid.UUID) (*reflection.UserChoiceAgnosticTypeReflection, error) {
-	request := mapToDynamoRequest(id)
-
-	item, err := d.dynamodbClient.GetItem(context.Background(), &request)
-	if err != nil {
-		return nil, err
-	}
-
-	var userChoiceCustom reflection.UserChoiceAgnosticTypeReflection
-	err = attributevalue.UnmarshalMap(item.Item, &userChoiceCustom)
-
-	return &userChoiceCustom, err
-}
-
-func mapToDynamoRequest(id uuid.UUID) dynamodb.GetItemInput {
-	table := UserChoicesTableName
-	request := dynamodb.GetItemInput{
-		TableName: &table,
-		Key: map[string]typez.AttributeValue{
-			"id": &typez.AttributeValueMemberS{
-				Value: id.String(),
-			},
-		},
-	}
-	return request
 }

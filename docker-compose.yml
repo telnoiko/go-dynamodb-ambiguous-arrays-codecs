@@ -1,5 +1,3 @@
-# https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/DynamoDBLocal.DownloadingAndRunning.html
-version: '3.8'
 services:
   test-app:
     container_name: test-app
@@ -13,7 +11,7 @@ services:
     depends_on:
       dynamo-config:
         condition: service_completed_successfully
-
+   # https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/DynamoDBLocal.DownloadingAndRunning.html
   dynamodb-local:
     command: "-jar DynamoDBLocal.jar -sharedDb -inMemory"
     image: "amazon/dynamodb-local:latest"
@@ -43,6 +41,6 @@ services:
       AWS_SECRET_ACCESS_KEY: 'DUMMYEXAMPLEKEY'
     command: >
       dynamodb create-table --endpoint-url http://dynamodb-local:8000 --region us-west-2 
-      --table-name UserChoices --attribute-definitions AttributeName=id,AttributeType=S 
+      --table-name UserData --attribute-definitions AttributeName=id,AttributeType=S 
       --key-schema AttributeName=id,KeyType=HASH 
       --provisioned-throughput ReadCapacityUnits=5,WriteCapacityUnits=5

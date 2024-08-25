@@ -10,19 +10,16 @@ import (
 func main() {
 	e := echo.New()
 
-	// this dynamodb configuration is only for local testing
-	// the usecase why to change it
-	// - running inside docker-compose
-	// -  debugging by running app locally against dynamodb running in docker-compose
+	// this dynamodb configuration is only for testing local use cases
 	dynamoHost := os.Getenv("DYANMODB_HOST")
 	repo := repository.NewDynamoRepository(dynamoHost)
-	crud := usecase.NewDataCrud(repo)
+	ucase := usecase.New(repo)
 
-	e.POST("/choice", crud.CreateUserChoice)
-	e.GET("/choice-manual/:id", crud.GetUserChoice)
-	e.GET("/choice-auto-array/:id", crud.GetUserChoiceAgnosticArray)
-	e.GET("/choice-auto-type/:id", crud.GetUserChoiceAgnosticType)
-	e.GET("/choice-auto-reflection/:id", crud.GetUserChoiceAgnosticTypeReflection)
+	e.POST("/user-data", ucase.CreateUserData)
+	e.GET("/user-data-manual/:id", ucase.GetUserData)
+	e.GET("/user-data-auto-array/:id", ucase.GetUserDataAgnosticArray)
+	e.GET("/user-data-auto-type/:id", ucase.GetUserDataAgnosticType)
+	e.GET("/user-data-auto-reflection/:id", ucase.GetUserDataAgnosticTypeReflection)
 
 	e.Logger.Fatal(e.Start(":1323"))
 }

@@ -7,7 +7,7 @@ import (
 
 func TryParseSliceField(av types.AttributeValue) ([]string, error) {
 	switch av.(type) {
-	case *types.AttributeValueMemberL:
+	case *types.AttributeValueMemberSS:
 		value, _ := av.(*types.AttributeValueMemberL)
 
 		strValues, err := readStringSlice(value)
@@ -20,6 +20,20 @@ func TryParseSliceField(av types.AttributeValue) ([]string, error) {
 		value, _ := av.(*types.AttributeValueMemberS)
 
 		return []string{value.Value}, nil
+	case *types.AttributeValueMemberL:
+		// this is untyped json list - {"apple", "banana", 42}
+		dynamoList, _ := av.(*types.AttributeValueMemberL)
+		casted := make([]string, 0)
+
+		for _, dynamoValue := range dynamoList.Value {
+			castedValue, ok := dynamoValue.(*types.AttributeValueMemberS)
+			if !ok {
+				continue
+			}
+			casted = append(casted, castedValue.Value)
+		}
+
+		return casted, nil
 	default:
 		return nil, fmt.Errorf("unsopported type of unmarshal value %v, type %T", av, av)
 	}
@@ -34,5 +48,6 @@ func readStringSlice(av *types.AttributeValueMemberL) ([]string, error) {
 		}
 		strValues = append(strValues, strValue.Value)
 	}
+
 	return strValues, nil
 }

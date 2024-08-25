@@ -1,4 +1,4 @@
-package reflection
+package dynamo_reflection
 
 import (
 	"fmt"
@@ -7,19 +7,19 @@ import (
 	"reflect"
 )
 
-// UserChoiceAgnosticTypeReflection is a dto with automatic type conversion
-// for the whole object using reflection
-type UserChoiceAgnosticTypeReflection struct {
-	ID     string   `json:"id" dynamodbav:"id"`
-	Choice []string `json:"choice" dynamodbav:"choice"`
+// UserDataAgnosticTypeReflection is a dto with automatic type conversion
+// for the whole object using dynamo_reflection
+type UserDataAgnosticTypeReflection struct {
+	ID           string   `json:"id" dynamodbav:"id"`
+	FavoriteFood []string `json:"favorite_food" dynamodbav:"favorite_food"`
 }
 
-func (a *UserChoiceAgnosticTypeReflection) UnmarshalDynamoDBAttributeValue(av types.AttributeValue) error {
-	var parsed UserChoiceAgnosticTypeReflection
+func (a *UserDataAgnosticTypeReflection) UnmarshalDynamoDBAttributeValue(av types.AttributeValue) error {
+	var parsed UserDataAgnosticTypeReflection
 
 	dynamoMap, ok := av.(*types.AttributeValueMemberM)
 	if !ok {
-		return fmt.Errorf("failed to unmarshal UserChoiceAgnosticType from value {%v}", av)
+		return fmt.Errorf("failed to unmarshal UserDataAgnosticType from value {%v}", av)
 	}
 
 	// iterate over all fields of the dto,

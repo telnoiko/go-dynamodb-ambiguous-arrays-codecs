@@ -1,10 +1,10 @@
 ###
-# @name Craete choice with a string type
-POST http://localhost:1323/choice
+# @name Craete user data with a string type
+POST http://localhost:1323/user-data
 Content-Type: application/json
 
 {
-  "choice": "grapes"
+  "favorite_food": "grapes"
 }
 
 > {%
@@ -12,14 +12,15 @@ Content-Type: application/json
 %}
 
 ###
-# @name Craete choice with a string array type
-POST http://localhost:1323/choice
+# @name Craete user data with a string array type
+POST http://localhost:1323/user-data
 Content-Type: application/json
 
 {
-  "choice": [
+  "favorite_food": [
     "banana",
-    "apples"
+    "apples",
+    42
   ]
 }
 
@@ -28,8 +29,8 @@ Content-Type: application/json
 %}
 
 ###
-# @name Test string choice with manual type conversion
-GET localhost:1323/choice-manual/{{id_string}}
+# @name Test string user data with manual type conversion
+GET localhost:1323/user-data-manual/{{id_string}}
 Content-Type: application/json
 
 > {%
@@ -41,8 +42,8 @@ Content-Type: application/json
 %}
 
 ###
-# @name Test array choice with a manual type conversion
-GET localhost:1323/choice-manual/{{id_array}}
+# @name Test array user data with a manual type conversion
+GET localhost:1323/user-data-manual/{{id_array}}
 Content-Type: application/json
 
 > {%
@@ -54,8 +55,8 @@ Content-Type: application/json
 %}
 
 ###
-# @name Test string choice with automatic unmarshalling of array
-GET localhost:1323/choice-auto-array/{{id_string}}
+# @name Test string user data with automatic unmarshalling of array
+GET localhost:1323/user-data-auto-array/{{id_string}}
 Content-Type: application/json
 
 > {%
@@ -67,8 +68,8 @@ Content-Type: application/json
 %}
 
 ###
-# @name Test array choice with automatic unmarshalling of array
-GET localhost:1323/choice-auto-array/{{id_array}}
+# @name Test array user data with automatic unmarshalling of array
+GET localhost:1323/user-data-auto-array/{{id_array}}
 Content-Type: application/json
 
 > {%
@@ -80,8 +81,8 @@ Content-Type: application/json
 %}
 
 ###
-# @name Test string choice with automatic unmarshalling of type
-GET localhost:1323/choice-auto-type/{{id_string}}
+# @name Test string user data with automatic unmarshalling of type
+GET localhost:1323/user-data-auto-type/{{id_string}}
 Content-Type: application/json
 
 > {%
@@ -93,8 +94,8 @@ Content-Type: application/json
 %}
 
 ###
-# @name Test array choice with automatic unmarshalling of type
-GET localhost:1323/choice-auto-type/{{id_array}}
+# @name Test array user data with automatic unmarshalling of type
+GET localhost:1323/user-data-auto-type/{{id_array}}
 Content-Type: application/json
 
 > {%
@@ -106,8 +107,8 @@ Content-Type: application/json
 %}
 
 ###
-# @name Test string choice with automatic unmarshalling of type using reflection
-GET localhost:1323/choice-auto-reflection/{{id_string}}
+# @name Test string user data with automatic unmarshalling of type using reflection
+GET localhost:1323/user-data-auto-reflection/{{id_string}}
 Content-Type: application/json
 
 > {%
@@ -119,8 +120,8 @@ Content-Type: application/json
 %}
 
 ###
-# @name Test array choice with automatic unmarshalling of typee using reflection
-GET localhost:1323/choice-auto-reflection/{{id_array}}
+# @name Test array user data with automatic unmarshalling of type using reflection
+GET localhost:1323/user-data-auto-reflection/{{id_array}}
 Content-Type: application/json
 
 > {%

@@ -1,15 +1,15 @@
-package agnostic_array
+package dynamo_agnostic_array
 
 import (
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 	"go-dynamodb-ambiguous-arrays-codecs/app/pkg/unmarshaling"
 )
 
-// UserChoiceAgnosticArray is a dto with automatic type conversion
+// UserDataAgnosticArray is a dto with automatic type conversion
 // for custom string slice field
-type UserChoiceAgnosticArray struct {
-	ID     string        `json:"id" dynamodbav:"id"`
-	Choice AgnosticArray `json:"choice" dynamodbav:"choice"`
+type UserDataAgnosticArray struct {
+	ID           string        `json:"id" dynamodbav:"id"`
+	FavoriteFood AgnosticArray `json:"favorite_food" dynamodbav:"favorite_food"`
 }
 
 type AgnosticArray []string
