@@ -7,7 +7,7 @@ import (
 	typez "github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 	"github.com/google/uuid"
 	"go-dynamodb-ambiguous-arrays-codecs/app/types"
-	"go-dynamodb-ambiguous-arrays-codecs/app/types/dynamo_agnostic_array"
+	"go-dynamodb-ambiguous-arrays-codecs/app/types/dynamo_agnostic_slice"
 	"go-dynamodb-ambiguous-arrays-codecs/app/types/dynamo_agnostic_type"
 	"go-dynamodb-ambiguous-arrays-codecs/app/types/dynamo_reflection"
 )
@@ -44,7 +44,7 @@ func (d *DynamoRepository) GetUserDataAbstract(id uuid.UUID) (*types.UserDataReq
 	return &UserDataAbstract, err
 }
 
-func (d *DynamoRepository) GetUserDataAgnosticArray(id uuid.UUID) (*dynamo_agnostic_array.UserDataAgnosticArray, error) {
+func (d *DynamoRepository) GetUserDataAgnosticArray(id uuid.UUID) (*dynamo_agnostic_slice.UserDataAgnosticSlice, error) {
 	request := mapToDynamoRequest(id)
 
 	item, err := d.dynamodbClient.GetItem(context.Background(), &request)
@@ -52,7 +52,7 @@ func (d *DynamoRepository) GetUserDataAgnosticArray(id uuid.UUID) (*dynamo_agnos
 		return nil, err
 	}
 
-	var UserDataCustom dynamo_agnostic_array.UserDataAgnosticArray
+	var UserDataCustom dynamo_agnostic_slice.UserDataAgnosticSlice
 	err = attributevalue.UnmarshalMap(item.Item, &UserDataCustom)
 
 	return &UserDataCustom, err

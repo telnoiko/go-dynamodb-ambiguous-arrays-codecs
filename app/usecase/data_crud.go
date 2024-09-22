@@ -5,7 +5,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
 	"go-dynamodb-ambiguous-arrays-codecs/app/types"
-	"go-dynamodb-ambiguous-arrays-codecs/app/types/dynamo_agnostic_array"
+	"go-dynamodb-ambiguous-arrays-codecs/app/types/dynamo_agnostic_slice"
 	"go-dynamodb-ambiguous-arrays-codecs/app/types/dynamo_agnostic_type"
 	"go-dynamodb-ambiguous-arrays-codecs/app/types/dynamo_reflection"
 	"go-dynamodb-ambiguous-arrays-codecs/app/types/manual"
@@ -19,7 +19,7 @@ type Usecase struct {
 type userDataRepository interface {
 	SaveUserDataAbstract(UserDataAbstract *types.UserDataRequest) (id string, err error)
 	GetUserDataAbstract(id uuid.UUID) (*types.UserDataRequest, error)
-	GetUserDataAgnosticArray(id uuid.UUID) (*dynamo_agnostic_array.UserDataAgnosticArray, error)
+	GetUserDataAgnosticArray(id uuid.UUID) (*dynamo_agnostic_slice.UserDataAgnosticSlice, error)
 	GetUserDataAgnosticType(id uuid.UUID) (*dynamo_agnostic_type.UserDataAgnosticType, error)
 	GetUserDataAgnosticTypeReflection(id uuid.UUID) (*dynamo_reflection.UserDataAgnosticTypeReflection, error)
 }
@@ -78,7 +78,7 @@ func parseAbstractRequest(request *types.UserDataRequest) (manual.UserDataTarget
 	return target, nil
 }
 
-// GetUserDataAgnosticArray parses the 'favorite_food' field with 'AgnosticArray' type
+// GetUserDataAgnosticArray parses the 'favorite_food' field with 'AgnosticSlice' type
 // that implements inbuilt dynamodb 'Unmarshaler' interface
 func (d *Usecase) GetUserDataAgnosticArray(ctx echo.Context) error {
 	ctx.Logger().Info("GetUserDataAgnosticArray")

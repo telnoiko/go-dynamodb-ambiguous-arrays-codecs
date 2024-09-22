@@ -7,7 +7,7 @@ type UserDataTarget struct {
 }
 
 // ConvertToArray is a manual conversion function to map 2 possible
-// types of fields in dynamodb - string and array of strings -
+// types of fields in DynamoDB - string and array of strings -
 // into a slice of strings.
 func ConvertToArray(field any) ([]string, error) {
 	if field == nil {
